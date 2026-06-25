@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useEffect, useRef } from 'react'
 import Image from 'next/image'
@@ -7,22 +7,22 @@ const items = [
   {
     num:   '01',
     title: 'Expertise locale exclusive',
-    body:  'SpÃ©cialistes des 7e, 15e et 16e arrondissements â€” nous connaissons chaque rue, chaque immeuble, chaque micro-marchÃ©.',
+    body:  'Spécialistes des 7e, 15e et 16e arrondissements — nous connaissons chaque rue, chaque immeuble, chaque micro-marché.',
   },
   {
     num:   '02',
-    title: 'RÃ©seau off-market privilÃ©giÃ©',
-    body:  'AccÃ¨s Ã  des biens exclusifs non publiÃ©s, issus de notre rÃ©seau de propriÃ©taires fidÃ¨les et de notaires partenaires.',
+    title: 'Réseau off-market privilégié',
+    body:  'Accès à des biens exclusifs non publiés, issus de notre réseau de propriétaires fidèles et de notaires partenaires.',
   },
   {
     num:   '03',
-    title: 'Estimation prÃ©cise & gratuite',
-    body:  'Valorisation fondÃ©e sur les transactions rÃ©centes, fournie par un expert dÃ©diÃ© â€” sans engagement, sans dÃ©lai.',
+    title: 'Estimation précise & gratuite',
+    body:  'Valorisation fondée sur les transactions récentes, fournie par un expert dédié — sans engagement, sans délai.',
   },
   {
     num:   '04',
-    title: 'Accompagnement de A Ã  Z',
-    body:  'De la premiÃ¨re visite Ã  la remise des clÃ©s, un seul interlocuteur, une seule responsabilitÃ©, zÃ©ro mauvaise surprise.',
+    title: 'Accompagnement de A à Z',
+    body:  'De la première visite à la remise des clés, un seul interlocuteur, une seule responsabilité, zéro mauvaise surprise.',
   },
 ]
 
@@ -30,7 +30,7 @@ export default function Avantages() {
   const sectionRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
-    let ctx: { revert\(\): void } | null = null
+    let ctx: { revert(): void } | null = null
 
     const init = async () => {
       const { gsap }          = await import('gsap')
@@ -81,7 +81,7 @@ export default function Avantages() {
           <div className="av-img">
             <Image
               src="/images/salon.png"
-              alt="Appartement parisien â€” Immotec"
+              alt="Appartement parisien — Immotec"
               fill
               style={{ objectFit: 'cover', objectPosition: 'center' }}
               sizes="(max-width: 768px) 100vw, 45vw"
@@ -89,7 +89,7 @@ export default function Avantages() {
           </div>
           <div className="av-badge">
             <strong>15+</strong>
-            <span>ans de prÃ©sence</span>
+            <span>ans de présence</span>
           </div>
         </div>
       </div>

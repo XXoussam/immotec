@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useEffect, useRef, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
@@ -15,11 +15,11 @@ import { Field, FieldGroup, FieldLabel, FieldError } from '@/components/ui/field
 import { ArrowRight } from 'lucide-react'
 
 const schema = z.object({
-  prenom:  z.string().min(1, 'PrÃ©nom requis'),
+  prenom:  z.string().min(1, 'Prénom requis'),
   nom:     z.string().min(1, 'Nom requis'),
   email:   z.string().email('Email invalide'),
   tel:     z.string().optional(),
-  projet:  z.string().min(1, 'SÃ©lectionnez un projet'),
+  projet:  z.string().min(1, 'Sélectionnez un projet'),
   message: z.string().optional(),
 })
 
@@ -49,7 +49,7 @@ export default function Contact() {
   } = useForm<FormData>({ resolver: zodResolver(schema) })
 
   useEffect(() => {
-    let ctx: { revert\(\): void } | null = null
+    let ctx: { revert(): void } | null = null
 
     const init = async () => {
       const { gsap }          = await import('gsap')
@@ -95,7 +95,7 @@ export default function Contact() {
             {/* Prenom + Nom */}
             <div className="f-row">
               <Field data-invalid={!!errors.prenom}>
-                <FieldLabel htmlFor="prenom">PrÃ©nom</FieldLabel>
+                <FieldLabel htmlFor="prenom">Prénom</FieldLabel>
                 <Input
                   id="prenom" placeholder="Marie"
                   className={inputCls} aria-invalid={!!errors.prenom}
@@ -126,7 +126,7 @@ export default function Contact() {
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="tel">TÃ©lÃ©phone</FieldLabel>
+              <FieldLabel htmlFor="tel">Téléphone</FieldLabel>
               <Input
                 type="tel" id="tel" placeholder="+33 6 00 00 00 00"
                 className={inputCls}
@@ -142,7 +142,7 @@ export default function Contact() {
                 render={({ field }) => (
                   <Select value={field.value ?? ''} onValueChange={field.onChange}>
                     <SelectTrigger className={`w-full ${inputCls} justify-between`}>
-                      <SelectValue placeholder="SÃ©lectionnez votre projet..." />
+                      <SelectValue placeholder="Sélectionnez votre projet..." />
                     </SelectTrigger>
                     <SelectContent className="bg-white border-black/[0.1] text-[var(--navy)] rounded-sm">
                       <SelectGroup>
@@ -166,7 +166,7 @@ export default function Contact() {
               <FieldLabel htmlFor="message">Message</FieldLabel>
               <Textarea
                 id="message"
-                placeholder="DÃ©crivez votre projet ou vos questions..."
+                placeholder="Décrivez votre projet ou vos questions..."
                 className={`${inputCls} min-h-[130px] resize-y`}
                 {...register('message')}
               />
@@ -183,7 +183,7 @@ export default function Contact() {
                 : 'bg-[var(--red)] hover:bg-[var(--red-dark)]'
             } text-[var(--offwhite)]`}
           >
-            {sent ? 'Message envoyÃ© âœ“' : isSubmitting ? 'Envoi...' : (
+            {sent ? 'Message envoyé ✓' : isSubmitting ? 'Envoi...' : (
               <>
                 Envoyer la demande
                 <ArrowRight data-icon="inline-end" className="size-3.5" />
@@ -212,7 +212,7 @@ export default function Contact() {
               </svg>
             </div>
             <div>
-              <h4>TÃ©lÃ©phone</h4>
+              <h4>Téléphone</h4>
               <a href="tel:+33145790010">+33 (0)1 45 79 00 10</a>
             </div>
           </div>
@@ -237,7 +237,7 @@ export default function Contact() {
             </div>
             <div>
               <h4>Horaires d&apos;ouverture</h4>
-              <p>Lun â€“ Ven : 9h00 â€“ 19h00<br/>Samedi : 10h00 â€“ 17h00</p>
+              <p>Lun – Ven : 9h00 – 19h00<br/>Samedi : 10h00 – 17h00</p>
             </div>
           </div>
         </div>
