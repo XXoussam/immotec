@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Immotec — Agence Immobilière à Paris 15e</title>
+  <meta name="description" content="Spécialistes de l'immobilier parisien depuis 15 ans. Vente, achat, estimation gratuite — 16 Avenue Emile Zola, 75015 Paris." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+
+  <style>
+    /* ── TOKENS ── */
+    :root {
+      --navy:     #2b2d42;
+      --grey:     #8d99ae;
+      --offwhite: #edf2f4;
+      --red:      #ef233c;
+      --red-dark: #d90429;
+      --font-display: 'Cormorant Garamond', Georgia, serif;
+      --font-body:    'Inter', system-ui, sans-serif;
+      --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* ── RESET ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: auto; }
+    body {
+      font-family: var(--font-body);
+      background: var(--offwhite);
+      color: var(--navy);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    img { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+
+    /* grain overlay */
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      opacity: 0.025; pointer-events: none; z-index: 9999; mix-blend-mode: overlay;
+    }
+
+    /* ── CUSTOM CURSOR ── */
+    @media (hover: hover) and (pointer: fine) {
+      * { cursor: none !important; }
+      #cur { position: fixed; width: 10px; height: 10px; background: var(--red); border-radius: 50%; pointer-events: none; z-index: 10000; transform: translate(-50%,-50%); transition: width .3s var(--ease-expo), height .3s var(--ease-expo); will-change: transform; }
+      #cur-ring { position: fixed; width: 38px; height: 38px; border: 1.5px solid rgba(239,35,60,.45); border-radius: 50%; pointer-events: none; z-index: 10000; transform: translate(-50%,-50%); will-change: transform; transition: width .3s var(--ease-expo), height .3s var(--ease-expo), border-color .3s ease; }
+      #cur.h { width: 18px; height: 18px; }
+      #cur-ring.h { width: 58px; height: 58px; border-color: var(--red); }
+    }
+
+    /* ── PRELOADER ── */
+    #preloader {
+      position: fixed; inset: 0; background: var(--navy); z-index: 9998;
+      display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 2.5rem;
+    }
+    .pre-logo {
+      font-family: var(--font-display); font-size: clamp(2rem,5vw,3.5rem);
+      color: var(--offwhite); font-weight: 300; letter-spacing: .35em; text-transform: uppercase;
+      opacity: 0; transform: translateY(16px);
+    }
+    .pre-track { width: 180px; height: 1px; background: rgba(255,255,255,.1); overflow: hidden; }
+    .pre-fill { height: 100%; width: 0; background: var(--red); }
+    .pre-count {
+      font-size: .7rem; letter-spacing: .2em; color: var(--grey); font-variant-numeric: tabular-nums;
+    }
+
+    /* ── NAVBAR ── */
+    #nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      padding: 1.6rem 5vw; display: flex; align-items: center; justify-content: space-between;
+      transition: background .4s ease, padding .3s ease, transform .4s var(--ease-expo), border-color .4s ease;
+      border-bottom: 1px solid transparent;
+    }
+    #nav.scrolled {
+      background: rgba(43,45,66,.93); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      padding: 1rem 5vw; border-color: rgba(141,153,174,.14);
+    }
+    #nav.up { transform: translateY(-100%); }
+
+    .logo { font-family: var(--font-display); font-size: 1.65rem; font-weight: 600; color: var(--offwhite); letter-spacing: .04em; }
+    .logo em { font-style: normal; color: var(--red); }
+
+    .nav-links { display: flex; align-items: center; gap: 2.5rem; list-style: none; }
+    .nav-links a { font-size: .75rem; font-weight: 500; color: rgba(237,242,244,.72); letter-spacing: .14em; text-transform: uppercase; transition: color .3s; }
+    .nav-links a:hover { color: var(--offwhite); }
+    .nav-links .cta-link { padding: .55rem 1.5rem; background: var(--red); color: var(--offwhite) !important; border-radius: 2px; transition: background .3s ease !important; }
+    .nav-links .cta-link:hover { background: var(--red-dark) !important; }
+
+    .hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; padding: 4px; }
+    .hamburger span { display: block; width: 22px; height: 1.5px; background: var(--offwhite); transition: transform .3s, opacity .3s; }
+
+    /* ── HERO ── */
+    #hero {
+      position: relative; height: 100dvh; min-height: 620px;
+      background: var(--navy); display: flex; align-items: center; overflow: hidden;
+    }
+    .hero-grid {
+      position: absolute; inset: 0;
+      background-image: linear-gradient(rgba(141,153,174,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(141,153,174,.045) 1px, transparent 1px);
+      background-size: 72px 72px;
+    }
+    .hero-glow {
+      position: absolute; top: -15%; right: -8%; width: 55vw; height: 80vh;
+      background: radial-gradient(ellipse, rgba(239,35,60,.09) 0%, transparent 68%); pointer-events: none;
+    }
+    .hero-glow2 {
+      position: absolute; bottom: -10%; left: 4%; width: 38vw; height: 50vh;
+      background: radial-gradient(ellipse, rgba(141,153,174,.07) 0%, transparent 68%); pointer-events: none;
+    }
+
+    .hero-visual {
+      position: absolute; right: 7vw; top: 50%; transform: translateY(-50%);
+      width: min(36vw, 500px); height: min(52vw, 620px);
+      clip-path: polygon(0 0, 84% 0, 100% 16%, 100% 100%, 16% 100%, 0 84%);
+      background: linear-gradient(135deg, #1a1c2e 0%, #2b2d42 45%, #363852 100%);
+      overflow: hidden;
+    }
+    .hero-visual-inner {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .hero-visual::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(160deg, rgba(43,45,66,.25) 0%, transparent 55%);
+    }
+
+    .hero-content { position: relative; z-index: 2; padding: 0 8vw; max-width: 680px; }
+
+    .eyebrow { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; opacity: 0; transform: translateY(18px); }
+    .eyebrow-line { width: 36px; height: 1px; background: var(--red); flex-shrink: 0; }
+    .eyebrow span { font-size: .7rem; font-weight: 500; letter-spacing: .22em; text-transform: uppercase; color: var(--grey); }
+
+    .hero-title {
+      font-family: var(--font-display); font-size: clamp(3.2rem,6.5vw,6.8rem);
+      font-weight: 300; color: var(--offwhite); line-height: 1.05; margin-bottom: 2rem;
+    }
+    .hero-title em { font-style: italic; color: var(--red); }
+    .hero-title .line { display: block; overflow: hidden; }
+    .hero-title .line span { display: block; transform: translateY(110%); }
+
+    .hero-body { font-size: 1rem; line-height: 1.78; color: var(--grey); max-width: 460px; margin-bottom: 2.75rem; opacity: 0; transform: translateY(18px); }
+
+    .hero-btns { display: flex; align-items: center; gap: 1.5rem; opacity: 0; transform: translateY(18px); }
+
+    .btn-red {
+      display: inline-flex; align-items: center; gap: .7rem;
+      padding: .85rem 1.9rem; background: var(--red); color: var(--offwhite);
+      font-size: .75rem; font-weight: 500; letter-spacing: .1em; text-transform: uppercase;
+      border-radius: 2px; border: none; cursor: pointer;
+      transition: background .3s ease, transform .3s var(--ease-expo);
+    }
+    .btn-red:hover { background: var(--red-dark); transform: translateY(-2px); }
+    .btn-red svg { transition: transform .3s var(--ease-expo); }
+    .btn-red:hover svg { transform: translateX(4px); }
+
+    .btn-ghost {
+      font-size: .75rem; font-weight: 500; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--grey); display: inline-flex; align-items: center; gap: .5rem;
+      transition: color .3s ease; border-bottom: 1px solid transparent; padding-bottom: 2px;
+    }
+    .btn-ghost:hover { color: var(--offwhite); border-bottom-color: rgba(141,153,174,.5); }
+
+    .scroll-hint {
+      position: absolute; bottom: 2.5rem; left: 8vw; display: flex; align-items: center; gap: 1rem; z-index: 2; opacity: 0;
+    }
+    .scroll-bar { width: 1px; height: 46px; background: linear-gradient(to bottom, var(--red), transparent); animation: pulse 2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scaleY(1)} 50%{opacity:.35;transform:scaleY(.65)} }
+    .scroll-label { font-size: .6rem; letter-spacing: .28em; text-transform: uppercase; color: var(--grey); writing-mode: vertical-lr; }
+
+    /* ── TRUST BAR ── */
+    #trust { background: var(--navy); border-top: 1px solid rgba(141,153,174,.1); padding: 3.5rem 8vw; }
+    .trust-grid { display: grid; grid-template-columns: repeat(4,1fr); }
+    .trust-item {
+      text-align: center; padding: 1.5rem 1rem;
+      border-right: 1px solid rgba(141,153,174,.1);
+    }
+    .trust-item:last-child { border-right: none; }
+    .trust-num {
+      font-family: var(--font-display); font-size: clamp(2.4rem,3.8vw,4rem);
+      font-weight: 300; color: var(--offwhite); line-height: 1; margin-bottom: .4rem;
+    }
+    .trust-num sup { font-size: .5em; color: var(--red); vertical-align: super; }
+    .trust-lbl { font-size: .7rem; letter-spacing: .16em; text-transform: uppercase; color: var(--grey); }
+
+    /* ── SECTIONS COMMON ── */
+    .section { padding: 8rem 8vw; }
+
+    .sec-eyebrow { display: flex; align-items: center; gap: .9rem; margin-bottom: 1.4rem; }
+    .sec-eye-line { width: 28px; height: 1px; background: var(--red); flex-shrink: 0; }
+    .sec-eye-text { font-size: .68rem; font-weight: 500; letter-spacing: .22em; text-transform: uppercase; color: var(--red); }
+
+    .sec-title { font-family: var(--font-display); font-size: clamp(2.2rem,3.8vw,4.2rem); font-weight: 300; line-height: 1.1; margin-bottom: 1.4rem; }
+    .sec-title em { font-style: italic; }
+    .sec-sub { font-size: .97rem; line-height: 1.76; color: var(--grey); max-width: 500px; }
+
+    /* ── ÉQUIPE ── */
+    #equipe { background: var(--offwhite); }
+    .equipe-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 5rem; gap: 2rem; flex-wrap: wrap; }
+    .equipe-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 2rem; }
+
+    .agent-card { overflow: hidden; border-radius: 2px; }
+    .agent-photo {
+      position: relative; aspect-ratio: 3/4; overflow: hidden;
+      background: linear-gradient(145deg, #1a1c2e 0%, #2b2d42 50%, #363852 100%);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .agent-photo::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 45%;
+      background: linear-gradient(to top, rgba(43,45,66,.85), transparent);
+    }
+    .agent-ini {
+      font-family: var(--font-display); font-size: 4.5rem; font-weight: 300;
+      color: rgba(237,242,244,.12); letter-spacing: .1em; user-select: none;
+    }
+    .agent-badge {
+      position: absolute; top: 1.2rem; left: 1.2rem;
+      padding: .28rem .7rem; background: var(--red); color: var(--offwhite);
+      font-size: .6rem; font-weight: 500; letter-spacing: .16em; text-transform: uppercase; z-index: 2;
+    }
+    .agent-info { padding: 1.5rem; background: var(--navy); }
+    .agent-name { font-family: var(--font-display); font-size: 1.5rem; font-weight: 400; color: var(--offwhite); margin-bottom: .2rem; }
+    .agent-role { font-size: .7rem; color: var(--grey); letter-spacing: .1em; text-transform: uppercase; margin-bottom: .9rem; }
+    .agent-contact { font-size: .8rem; color: var(--grey); display: flex; flex-direction: column; gap: .28rem; }
+    .agent-contact a:hover { color: var(--red); }
+
+    .agent-card:hover .agent-ini { color: rgba(237,242,244,.18); transition: color .5s; }
+
+    /* ── AVIS ── */
+    #avis { background: var(--navy); position: relative; overflow: hidden; }
+    #avis .sec-title { color: var(--offwhite); }
+    .avis-deco {
+      position: absolute; top: 3rem; right: 3vw;
+      font-family: var(--font-display); font-size: clamp(10rem,18vw,18rem);
+      font-weight: 700; color: rgba(141,153,174,.04); line-height: 1; pointer-events: none; user-select: none;
+    }
+    .avis-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; margin-top: 4rem; }
+    .avis-card {
+      background: rgba(237,242,244,.04); border: 1px solid rgba(141,153,174,.12);
+      padding: 2rem; border-radius: 2px;
+      transition: border-color .3s, background .3s;
+    }
+    .avis-card:hover { border-color: rgba(239,35,60,.3); background: rgba(239,35,60,.04); }
+    .stars { color: var(--red); font-size: .95rem; letter-spacing: 2px; margin-bottom: 1.25rem; }
+    .avis-body { font-size: .93rem; line-height: 1.76; color: rgba(237,242,244,.72); margin-bottom: 1.5rem; font-style: italic; }
+    .avis-author { display: flex; align-items: center; gap: 1rem; }
+    .avatar {
+      width: 40px; height: 40px; border-radius: 50%; background: rgba(141,153,174,.25);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display); font-size: 1rem; color: var(--offwhite); font-weight: 500; flex-shrink: 0;
+    }
+    .avis-author strong { display: block; font-size: .83rem; color: var(--offwhite); font-weight: 500; }
+    .avis-author span { font-size: .73rem; color: var(--grey); }
+
+    .avis-footer { display: flex; align-items: center; gap: 1.5rem; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid rgba(141,153,174,.1); flex-wrap: wrap; gap: 1rem; }
+    .g-score { font-family: var(--font-display); font-size: 2.2rem; color: var(--offwhite); font-weight: 300; }
+    .g-meta { font-size: .8rem; color: var(--grey); }
+
+    /* ── AVANTAGES ── */
+    #avantages { background: var(--offwhite); }
+    .avantages-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center; }
+    .av-list { display: flex; flex-direction: column; }
+    .av-item {
+      padding: 2rem 0; border-bottom: 1px solid rgba(43,45,66,.09);
+      display: grid; grid-template-columns: 2.8rem 1fr; gap: 1.5rem; align-items: start;
+      transition: transform .3s var(--ease-expo);
+    }
+    .av-item:first-child { border-top: 1px solid rgba(43,45,66,.09); }
+    .av-item:hover { transform: translateX(6px); }
+    .av-num { font-family: var(--font-display); font-size: 1.15rem; color: var(--red); font-weight: 300; padding-top: .15rem; }
+    .av-item h3 { font-family: var(--font-display); font-size: 1.25rem; font-weight: 500; margin-bottom: .4rem; }
+    .av-item p { font-size: .88rem; line-height: 1.72; color: var(--grey); }
+
+    .av-visual { position: relative; }
+    .av-img {
+      aspect-ratio: 4/5; overflow: hidden;
+      clip-path: polygon(0 0, 88% 0, 100% 12%, 100% 100%, 12% 100%, 0 88%);
+      background: linear-gradient(145deg, #1a1c2e 0%, #2b2d42 45%, #363852 100%);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .av-badge {
+      position: absolute; bottom: -1.5rem; left: -1.5rem;
+      background: var(--red); color: var(--offwhite); padding: 1.4rem 1.8rem; z-index: 2;
+    }
+    .av-badge strong { display: block; font-family: var(--font-display); font-size: 2.4rem; font-weight: 300; line-height: 1; }
+    .av-badge span { font-size: .65rem; letter-spacing: .16em; text-transform: uppercase; opacity: .85; }
+
+    /* ── CONTACT ── */
+    #contact { background: var(--navy); }
+    #contact .sec-title { color: var(--offwhite); }
+    #contact .sec-sub { color: var(--grey); }
+    .contact-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; margin-top: 5rem; }
+    .c-form { display: flex; flex-direction: column; gap: 1.2rem; }
+    .f-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+    .f-group { display: flex; flex-direction: column; gap: .45rem; }
+    .f-group label { font-size: .67rem; font-weight: 500; letter-spacing: .16em; text-transform: uppercase; color: var(--grey); }
+    .f-group input, .f-group select, .f-group textarea {
+      background: rgba(237,242,244,.05); border: 1px solid rgba(141,153,174,.2);
+      border-radius: 2px; padding: .82rem 1rem;
+      font-family: var(--font-body); font-size: .9rem; color: var(--offwhite);
+      outline: none; transition: border-color .3s, background .3s; -webkit-appearance: none;
+    }
+    .f-group input::placeholder, .f-group textarea::placeholder { color: rgba(141,153,174,.45); }
+    .f-group input:focus, .f-group select:focus, .f-group textarea:focus { border-color: var(--red); background: rgba(239,35,60,.05); }
+    .f-group select option { background: var(--navy); color: var(--offwhite); }
+    .f-group textarea { resize: vertical; min-height: 130px; }
+
+    .c-info { display: flex; flex-direction: column; gap: 2.2rem; padding-top: .5rem; }
+    .c-item { display: flex; gap: 1.2rem; }
+    .c-icon {
+      width: 42px; height: 42px; border: 1px solid rgba(141,153,174,.18); border-radius: 2px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--red);
+    }
+    .c-item h4 { font-size: .65rem; font-weight: 500; letter-spacing: .16em; text-transform: uppercase; color: var(--grey); margin-bottom: .35rem; }
+    .c-item p, .c-item a { font-size: .92rem; color: var(--offwhite); line-height: 1.65; }
+    .c-item a:hover { color: var(--red); }
+
+    /* ── MAP ── */
+    #map-section { background: var(--navy); border-top: 1px solid rgba(141,153,174,.08); }
+    .map-wrap { display: grid; grid-template-columns: 1fr 2fr; }
+    .map-aside {
+      padding: 4.5rem 3.5vw; background: var(--navy);
+      display: flex; flex-direction: column; gap: 2.5rem;
+    }
+    .map-title { font-family: var(--font-display); font-size: 1.9rem; font-weight: 300; color: var(--offwhite); margin-bottom: .4rem; }
+    .map-addr { font-size: .88rem; color: var(--grey); line-height: 1.7; }
+
+    .map-block { border-top: 1px solid rgba(141,153,174,.1); padding-top: 2rem; }
+    .map-block h4 { font-size: .65rem; font-weight: 500; letter-spacing: .18em; text-transform: uppercase; color: var(--red); margin-bottom: 1.2rem; }
+
+    .hours-row { display: flex; justify-content: space-between; font-size: .83rem; padding: .48rem 0; border-bottom: 1px solid rgba(141,153,174,.07); color: var(--grey); }
+    .hours-row .day { color: var(--offwhite); }
+    .closed { color: var(--red) !important; }
+
+    .metro-list { display: flex; flex-direction: column; gap: .7rem; }
+    .metro-item { display: flex; align-items: center; gap: .75rem; font-size: .82rem; color: var(--grey); }
+    .m-badge { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .65rem; font-weight: 700; color: #fff; flex-shrink: 0; }
+    .m8  { background: #d282be; }
+    .m10 { background: #c9a428; }
+    .rc  { background: #0064b0; font-size: .55rem; }
+
+    .map-frame { height: 100%; min-height: 480px; }
+    .map-frame iframe { width: 100%; height: 100%; border: none; filter: grayscale(20%) contrast(1.08); display: block; }
+
+    /* ── FOOTER ── */
+    #footer { background: #191b2a; padding: 4.5rem 8vw 2.5rem; color: var(--grey); }
+    .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem; padding-bottom: 3.5rem; border-bottom: 1px solid rgba(141,153,174,.09); margin-bottom: 2rem; }
+    .footer-brand .logo { display: inline-block; margin-bottom: 1rem; }
+    .footer-tag { font-family: var(--font-display); font-size: .97rem; font-style: italic; color: rgba(237,242,244,.42); line-height: 1.6; margin-bottom: 1.5rem; }
+    .socials { display: flex; gap: .6rem; }
+    .social-btn {
+      width: 34px; height: 34px; border: 1px solid rgba(141,153,174,.18); border-radius: 2px;
+      display: flex; align-items: center; justify-content: center; color: var(--grey);
+      transition: border-color .3s, color .3s, background .3s;
+    }
+    .social-btn:hover { border-color: var(--red); color: var(--red); background: rgba(239,35,60,.07); }
+    .f-col h5 { font-size: .67rem; font-weight: 500; letter-spacing: .17em; text-transform: uppercase; color: var(--offwhite); margin-bottom: 1.4rem; }
+    .f-links { list-style: none; display: flex; flex-direction: column; gap: .7rem; }
+    .f-links a { font-size: .83rem; color: var(--grey); transition: color .3s; }
+    .f-links a:hover { color: var(--red); }
+    .footer-bot { display: flex; justify-content: space-between; align-items: center; gap: 1rem; font-size: .72rem; flex-wrap: wrap; }
+    .footer-bot a:hover { color: var(--red); }
+    .heart { color: var(--red); }
+
+    /* ── SCROLL REVEAL CLASSES ── */
+    .rv { opacity: 0; transform: translateY(44px); }
+    .rl { opacity: 0; transform: translateX(-44px); }
+    .rr { opacity: 0; transform: translateX(44px); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 960px) {
+      .section { padding: 5.5rem 6vw; }
+      .trust-grid { grid-template-columns: repeat(2,1fr); }
+      .trust-item:nth-child(2) { border-right: none; }
+      .equipe-grid { grid-template-columns: 1fr; max-width: 360px; }
+      .avis-grid { grid-template-columns: 1fr; }
+      .avantages-wrap { grid-template-columns: 1fr; gap: 3rem; }
+      .av-visual { display: none; }
+      .contact-wrap { grid-template-columns: 1fr; gap: 3rem; }
+      .f-row { grid-template-columns: 1fr; }
+      .map-wrap { grid-template-columns: 1fr; }
+      .map-frame { min-height: 320px; }
+      .footer-top { grid-template-columns: 1fr 1fr; }
+      .footer-brand { grid-column: 1/-1; }
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+      .hero-visual { display: none; }
+      .equipe-head { flex-direction: column; }
+    }
+    @media (max-width: 560px) {
+      .trust-grid { grid-template-columns: 1fr 1fr; }
+      .footer-top { grid-template-columns: 1fr; }
+      .footer-bot { flex-direction: column; text-align: center; }
+    }
+
+    /* mobile nav overlay */
+    #nav-overlay {
+      display: none; position: fixed; inset: 0; background: var(--navy); z-index: 999;
+      flex-direction: column; align-items: center; justify-content: center; gap: 2.5rem;
+    }
+    #nav-overlay.open { display: flex; }
+    #nav-overlay a { font-family: var(--font-display); font-size: 2.2rem; font-weight: 300; color: var(--offwhite); letter-spacing: .05em; }
+    #nav-overlay a:hover { color: var(--red); }
+    #nav-overlay .close-btn { position: absolute; top: 1.5rem; right: 5vw; background: none; border: none; color: var(--offwhite); font-size: 1.5rem; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+<!-- CUSTOM CURSOR -->
+<div id="cur"></div>
+<div id="cur-ring"></div>
+
+<!-- PRELOADER -->
+<div id="preloader">
+  <div class="pre-logo">Immotec</div>
+  <div class="pre-track"><div class="pre-fill" id="pFill"></div></div>
+  <div class="pre-count" id="pCount">0%</div>
+</div>
+
+<!-- MOBILE NAV OVERLAY -->
+<div id="nav-overlay">
+  <button class="close-btn" id="navClose" aria-label="Fermer">✕</button>
+  <a href="#equipe" class="nav-ov-link">L'Équipe</a>
+  <a href="#avis" class="nav-ov-link">Avis</a>
+  <a href="#avantages" class="nav-ov-link">Avantages</a>
+  <a href="#contact" class="nav-ov-link">Contact</a>
+</div>
+
+<!-- ═══════════════ NAVBAR ═══════════════ -->
+<nav id="nav">
+  <a href="#" class="logo">immo<em>tec</em></a>
+  <ul class="nav-links">
+    <li><a href="#equipe">L'Équipe</a></li>
+    <li><a href="#avis">Avis</a></li>
+    <li><a href="#avantages">Avantages</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#contact" class="cta-link">Estimation gratuite</a></li>
+  </ul>
+  <button class="hamburger" id="navOpen" aria-label="Menu"><span></span><span></span><span></span></button>
+</nav>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<section id="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-glow2"></div>
+
+  <div class="hero-visual">
+    <div class="hero-visual-inner">
+      <svg width="180" height="220" viewBox="0 0 180 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="25" y="35" width="130" height="150" rx="2" fill="none" stroke="rgba(237,242,244,0.06)" stroke-width="1"/>
+        <rect x="38" y="55" width="50" height="50" rx="1" fill="none" stroke="rgba(237,242,244,0.05)" stroke-width="1"/>
+        <rect x="98" y="55" width="42" height="20" rx="1" fill="none" stroke="rgba(237,242,244,0.04)" stroke-width="1"/>
+        <rect x="98" y="82" width="35" height="6" rx="1" fill="rgba(237,242,244,0.04)"/>
+        <rect x="98" y="94" width="28" height="6" rx="1" fill="rgba(237,242,244,0.03)"/>
+        <rect x="38" y="118" width="102" height="3" rx="1" fill="rgba(237,242,244,0.04)"/>
+        <rect x="38" y="128" width="90" height="3" rx="1" fill="rgba(237,242,244,0.03)"/>
+        <rect x="38" y="138" width="75" height="3" rx="1" fill="rgba(237,242,244,0.03)"/>
+        <rect x="38" y="155" width="38" height="20" rx="1" fill="rgba(239,35,60,0.18)" stroke="rgba(239,35,60,0.25)" stroke-width="0.5"/>
+        <path d="M90 8 L25 44 L25 35 L90 0 L155 35 L155 44 Z" fill="rgba(239,35,60,0.12)" stroke="rgba(239,35,60,0.18)" stroke-width="0.8"/>
+        <text x="90" y="205" text-anchor="middle" font-family="Georgia,serif" font-size="16" fill="rgba(237,242,244,0.07)" letter-spacing="6">PARIS</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="hero-content">
+    <div class="eyebrow">
+      <div class="eyebrow-line"></div>
+      <span>Agence immobilière · Paris 15e</span>
+    </div>
+
+    <h1 class="hero-title">
+      <span class="line"><span>L'immobilier</span></span>
+      <span class="line"><span>parisien,</span></span>
+      <span class="line"><span><em>autrement.</em></span></span>
+    </h1>
+
+    <p class="hero-body">
+      Spécialistes du marché parisien depuis plus de 15 ans, nous accompagnons chaque propriétaire et acquéreur avec un service sur-mesure, confidentiel et profondément humain.
+    </p>
+
+    <div class="hero-btns">
+      <a href="#contact" class="btn-red">
+        Estimation gratuite
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h12M7 1l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a href="#avantages" class="btn-ghost">
+        Nos services
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 6h10M6 1l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <div class="scroll-hint" id="scrollHint">
+    <div class="scroll-bar"></div>
+    <span class="scroll-label">Découvrir</span>
+  </div>
+</section>
+
+<!-- ═══════════════ TRUST BAR ═══════════════ -->
+<div id="trust">
+  <div class="trust-grid">
+    <div class="trust-item rv">
+      <div class="trust-num" data-target="15" data-suffix="+">0+</div>
+      <div class="trust-lbl">Années d'expertise</div>
+    </div>
+    <div class="trust-item rv">
+      <div class="trust-num" data-target="850" data-suffix="+">0+</div>
+      <div class="trust-lbl">Transactions réalisées</div>
+    </div>
+    <div class="trust-item rv">
+      <div class="trust-num" data-target="4.9" data-suffix="★" data-decimal="1">0★</div>
+      <div class="trust-lbl">Note Google</div>
+    </div>
+    <div class="trust-item rv">
+      <div class="trust-num" data-target="97" data-suffix="%">0%</div>
+      <div class="trust-lbl">Clients satisfaits</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ L'ÉQUIPE ═══════════════ -->
+<section id="equipe" class="section">
+  <div class="equipe-head">
+    <div class="rl">
+      <div class="sec-eyebrow"><div class="sec-eye-line"></div><span class="sec-eye-text">Notre équipe</span></div>
+      <h2 class="sec-title">Des experts <em>à votre service</em></h2>
+    </div>
+    <p class="sec-sub rr">Chaque conseiller immotec est un spécialiste du marché parisien, formé en continu et entièrement dédié à votre réussite.</p>
+  </div>
+
+  <div class="equipe-grid">
+    <div class="agent-card rv">
+      <div class="agent-photo">
+        <div class="agent-ini">SC</div>
+        <div class="agent-badge">Fondatrice</div>
+      </div>
+      <div class="agent-info">
+        <div class="agent-name">Sophie Chauvet</div>
+        <div class="agent-role">Directrice &amp; Négociatrice Senior</div>
+        <div class="agent-contact">
+          <span>+33 (0)1 45 79 00 11</span>
+          <a href="mailto:s.chauvet@immotec.com">s.chauvet@immotec.com</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="agent-card rv" style="transition-delay:.1s">
+      <div class="agent-photo">
+        <div class="agent-ini">AM</div>
+        <div class="agent-badge">15e · 7e</div>
+      </div>
+      <div class="agent-info">
+        <div class="agent-name">Antoine Mercier</div>
+        <div class="agent-role">Négociateur — 15e &amp; 7e arrondissement</div>
+        <div class="agent-contact">
+          <span>+33 (0)1 45 79 00 12</span>
+          <a href="mailto:a.mercier@immotec.com">a.mercier@immotec.com</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="agent-card rv" style="transition-delay:.2s">
+      <div class="agent-photo">
+        <div class="agent-ini">LD</div>
+        <div class="agent-badge">Luxe</div>
+      </div>
+      <div class="agent-info">
+        <div class="agent-name">Lucie Delorme</div>
+        <div class="agent-role">Consultante — Biens d'exception</div>
+        <div class="agent-contact">
+          <span>+33 (0)1 45 79 00 13</span>
+          <a href="mailto:l.delorme@immotec.com">l.delorme@immotec.com</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ AVIS CLIENTS ═══════════════ -->
+<section id="avis" class="section">
+  <div class="avis-deco">"</div>
+  <div class="sec-eyebrow rv"><div class="sec-eye-line"></div><span class="sec-eye-text">Témoignages</span></div>
+  <h2 class="sec-title rv">Ce que disent nos <em>clients</em></h2>
+
+  <div class="avis-grid">
+    <div class="avis-card rv">
+      <div class="stars">★★★★★</div>
+      <p class="avis-body">« Sophie a vendu notre appartement en moins de 3 semaines, au-dessus du prix demandé. Un professionnalisme rare, une disponibilité totale, et une connaissance du 15e qui ne s'invente pas. »</p>
+      <div class="avis-author">
+        <div class="avatar">MF</div>
+        <div>
+          <strong>Marie &amp; François D.</strong>
+          <span>Vendeurs — Avenue Félix Faure</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="avis-card rv" style="transition-delay:.1s">
+      <div class="stars">★★★★★</div>
+      <p class="avis-body">« Première acquisition à Paris et immotec a tout géré avec une pédagogie exemplaire. Antoine nous a accompagnés de la première visite à la signature sans jamais nous brusquer. »</p>
+      <div class="avis-author">
+        <div class="avatar">TP</div>
+        <div>
+          <strong>Thomas P.</strong>
+          <span>Acheteur — Quartier Javel, 15e</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="avis-card rv" style="transition-delay:.2s">
+      <div class="stars">★★★★★</div>
+      <p class="avis-body">« Lucie a trouvé exactement le bien que je recherchais pour mon investissement. Réactive, honnête, et avec un vrai réseau off-market. Je recommande immotec sans la moindre hésitation. »</p>
+      <div class="avis-author">
+        <div class="avatar">CB</div>
+        <div>
+          <strong>Claire B.</strong>
+          <span>Investisseuse — Paris 7e</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="avis-footer rv">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+    <div class="g-score">4,9 / 5</div>
+    <div class="g-meta">Basé sur <strong style="color:var(--offwhite)">127 avis</strong> Google vérifiés</div>
+  </div>
+</section>
+
+<!-- ═══════════════ LES AVANTAGES ═══════════════ -->
+<section id="avantages" class="section">
+  <div class="avantages-wrap">
+    <div>
+      <div class="sec-eyebrow rl"><div class="sec-eye-line"></div><span class="sec-eye-text">Pourquoi nous choisir</span></div>
+      <h2 class="sec-title rl">Les avantages <em>immotec</em></h2>
+      <div class="av-list" style="margin-top:2.5rem">
+        <div class="av-item rv">
+          <div class="av-num">01</div>
+          <div>
+            <h3>Expertise locale exclusive</h3>
+            <p>Spécialistes des 7e, 15e et 16e arrondissements — nous connaissons chaque rue, chaque immeuble, chaque micro-marché.</p>
+          </div>
+        </div>
+        <div class="av-item rv">
+          <div class="av-num">02</div>
+          <div>
+            <h3>Réseau off-market privilégié</h3>
+            <p>Accès à des biens exclusifs non publiés, issus de notre réseau de propriétaires fidèles et de notaires partenaires.</p>
+          </div>
+        </div>
+        <div class="av-item rv">
+          <div class="av-num">03</div>
+          <div>
+            <h3>Estimation précise &amp; gratuite</h3>
+            <p>Valorisation fondée sur les transactions récentes, fournie par un expert dédié — sans engagement, sans délai.</p>
+          </div>
+        </div>
+        <div class="av-item rv">
+          <div class="av-num">04</div>
+          <div>
+            <h3>Accompagnement de A à Z</h3>
+            <p>De la première visite à la remise des clés, un seul interlocuteur, une seule responsabilité, zéro mauvaise surprise.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="av-visual rr">
+      <div class="av-img">
+        <svg width="200" height="250" viewBox="0 0 200 250" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="30" y="40" width="140" height="170" rx="2" fill="none" stroke="rgba(237,242,244,0.05)" stroke-width="1"/>
+          <rect x="45" y="60" width="110" height="75" rx="1" fill="none" stroke="rgba(237,242,244,0.04)" stroke-width="1"/>
+          <rect x="45" y="145" width="50" height="50" rx="1" fill="none" stroke="rgba(237,242,244,0.04)" stroke-width="1"/>
+          <rect x="105" y="145" width="50" height="50" rx="1" fill="none" stroke="rgba(237,242,244,0.04)" stroke-width="1"/>
+          <path d="M100 12 L30 54 L30 40 L100 0 L170 40 L170 54 Z" fill="rgba(239,35,60,0.14)" stroke="rgba(239,35,60,0.2)" stroke-width="0.8"/>
+          <circle cx="100" cy="97" r="18" fill="none" stroke="rgba(237,242,244,0.07)" stroke-width="1"/>
+          <circle cx="100" cy="97" r="5" fill="rgba(239,35,60,0.45)"/>
+          <text x="100" y="228" text-anchor="middle" font-family="Georgia,serif" font-size="14" fill="rgba(237,242,244,0.07)" letter-spacing="7">PARIS XV</text>
+        </svg>
+      </div>
+      <div class="av-badge">
+        <strong>15+</strong>
+        <span>ans de présence</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ CONTACT ═══════════════ -->
+<section id="contact" class="section">
+  <div class="sec-eyebrow rv"><div class="sec-eye-line"></div><span class="sec-eye-text">Nous contacter</span></div>
+  <h2 class="sec-title rv">Parlons de <em>votre projet</em></h2>
+  <p class="sec-sub rv">Remplissez ce formulaire et un conseiller vous rappelle sous 24 heures.</p>
+
+  <div class="contact-wrap">
+    <form class="c-form rl" id="contactForm" novalidate>
+      <div class="f-row">
+        <div class="f-group">
+          <label for="prenom">Prénom</label>
+          <input type="text" id="prenom" name="prenom" placeholder="Marie" />
+        </div>
+        <div class="f-group">
+          <label for="nom">Nom</label>
+          <input type="text" id="nom" name="nom" placeholder="Dupont" />
+        </div>
+      </div>
+      <div class="f-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="marie@email.com" />
+      </div>
+      <div class="f-group">
+        <label for="tel">Téléphone</label>
+        <input type="tel" id="tel" name="tel" placeholder="+33 6 00 00 00 00" />
+      </div>
+      <div class="f-group">
+        <label for="projet">Votre projet</label>
+        <select id="projet" name="projet">
+          <option value="">Sélectionnez votre projet...</option>
+          <option>Vendre mon bien</option>
+          <option>Acheter un bien</option>
+          <option>Estimation gratuite</option>
+          <option>Investissement locatif</option>
+          <option>Autre demande</option>
+        </select>
+      </div>
+      <div class="f-group">
+        <label for="message">Message</label>
+        <textarea id="message" name="message" placeholder="Décrivez votre projet ou vos questions..."></textarea>
+      </div>
+      <button type="submit" class="btn-red" id="submitBtn" style="align-self:flex-start">
+        Envoyer la demande
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h12M7 1l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </form>
+
+    <div class="c-info rr">
+      <div class="c-item">
+        <div class="c-icon">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+        </div>
+        <div>
+          <h4>Adresse</h4>
+          <p>16 Avenue Emile Zola<br/>75015 Paris, France</p>
+        </div>
+      </div>
+      <div class="c-item">
+        <div class="c-icon">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 014.5 11.5a19.79 19.79 0 01-3.07-8.67A2 2 0 013.07 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L7.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+        </div>
+        <div>
+          <h4>Téléphone</h4>
+          <a href="tel:+33145790010">+33 (0)1 45 79 00 10</a>
+        </div>
+      </div>
+      <div class="c-item">
+        <div class="c-icon">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </div>
+        <div>
+          <h4>Email</h4>
+          <a href="mailto:contact@immotec.com">contact@immotec.com</a>
+        </div>
+      </div>
+      <div class="c-item">
+        <div class="c-icon">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div>
+          <h4>Horaires d'ouverture</h4>
+          <p>Lun – Ven : 9h00 – 19h00<br/>Samedi : 10h00 – 17h00</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ MAP ═══════════════ -->
+<div id="map-section">
+  <div class="map-wrap">
+    <div class="map-aside">
+      <div>
+        <div class="sec-eyebrow" style="margin-bottom:.9rem">
+          <div class="sec-eye-line"></div>
+          <span class="sec-eye-text">Nous trouver</span>
+        </div>
+        <div class="map-title">Notre agence</div>
+        <div class="map-addr">
+          16 Avenue Emile Zola<br/>
+          75015 Paris, France<br/><br/>
+          Au cœur du 15e arrondissement, à deux pas de la Seine.
+        </div>
+      </div>
+
+      <div class="map-block">
+        <h4>Horaires d'ouverture</h4>
+        <div class="hours-row"><span class="day">Lundi</span><span>09:00 – 19:00</span></div>
+        <div class="hours-row"><span class="day">Mardi – Vendredi</span><span>09:00 – 19:00</span></div>
+        <div class="hours-row"><span class="day">Samedi</span><span>10:00 – 17:00</span></div>
+        <div class="hours-row"><span class="day">Dimanche</span><span class="closed">Fermé</span></div>
+      </div>
+
+      <div class="map-block">
+        <h4>Accès transports</h4>
+        <div class="metro-list">
+          <div class="metro-item">
+            <div class="m-badge m10">10</div>
+            <span>Ligne 10 — Émile Zola (1 min à pied)</span>
+          </div>
+          <div class="metro-item">
+            <div class="m-badge m8">8</div>
+            <span>Ligne 8 — Commerce (3 min à pied)</span>
+          </div>
+          <div class="metro-item">
+            <div class="m-badge rc">C</div>
+            <span>RER C — Javel – André Citroën (5 min)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="map-frame">
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2625.612534073!2d2.293003315674!3d48.84892!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e6703b6f8e4c9d%3A0x0!2s16+Avenue+%C3%89mile+Zola%2C+75015+Paris%2C+France!5e0!3m2!1sfr!2sfr!4v1719220000000!5m2!1sfr!2sfr"
+        allowfullscreen=""
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        title="Immotec — 16 Avenue Emile Zola 75015 Paris">
+      </iframe>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer id="footer">
+  <div class="footer-top">
+    <div class="footer-brand">
+      <a href="#" class="logo">immo<em>tec</em></a>
+      <p class="footer-tag">L'immobilier parisien, autrement.</p>
+      <div class="socials">
+        <a href="#" class="social-btn" aria-label="LinkedIn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>
+        </a>
+        <a href="#" class="social-btn" aria-label="Instagram">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        </a>
+        <a href="#" class="social-btn" aria-label="Facebook">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="f-col">
+      <h5>Navigation</h5>
+      <ul class="f-links">
+        <li><a href="#equipe">L'Équipe</a></li>
+        <li><a href="#avis">Avis clients</a></li>
+        <li><a href="#avantages">Nos avantages</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+
+    <div class="f-col">
+      <h5>Services</h5>
+      <ul class="f-links">
+        <li><a href="#contact">Vente</a></li>
+        <li><a href="#contact">Achat</a></li>
+        <li><a href="#contact">Estimation</a></li>
+        <li><a href="#contact">Investissement</a></li>
+      </ul>
+    </div>
+
+    <div class="f-col">
+      <h5>Légal</h5>
+      <ul class="f-links">
+        <li><a href="#">Mentions légales</a></li>
+        <li><a href="#">Politique de confidentialité</a></li>
+        <li><a href="#">Carte professionnelle</a></li>
+        <li><a href="#">Plan du site</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-bot">
+    <span>© 2025 Immotec SAS — Tous droits réservés. Carte T : CPI 7501 2024 000 000 000.</span>
+    <span>Conçu avec soin à Paris <span class="heart">♥</span></span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  // ── PRELOADER ──
+  const preloader = document.getElementById('preloader');
+  const preLogo   = preloader.querySelector('.pre-logo');
+  const pFill     = document.getElementById('pFill');
+  const pCount    = document.getElementById('pCount');
+
+  let pct = 0;
+  const ticker = setInterval(() => {
+    pct += Math.random() * 18;
+    if (pct > 100) pct = 100;
+    pFill.style.width = pct + '%';
+    pCount.textContent = Math.round(pct) + '%';
+    if (pct >= 100) clearInterval(ticker);
+  }, 80);
+
+  preLogo.style.transition = 'opacity .7s ease, transform .7s ease';
+  setTimeout(() => { preLogo.style.opacity = '1'; preLogo.style.transform = 'translateY(0)'; }, 100);
+
+  function hidePreloader() {
+    setTimeout(() => {
+      preloader.style.transition = 'opacity .7s ease, transform .75s cubic-bezier(0.76,0,0.24,1)';
+      preloader.style.opacity = '0';
+      preloader.style.transform = 'translateY(-100%)';
+      setTimeout(() => { preloader.style.display = 'none'; }, 750);
+    }, 1800);
+  }
+
+  if (document.readyState === 'complete') hidePreloader();
+  else window.addEventListener('load', hidePreloader);
+
+  // ── CUSTOM CURSOR ──
+  const isFine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  if (isFine) {
+    const cur  = document.getElementById('cur');
+    const ring = document.getElementById('cur-ring');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cur.style.transform = `translate(${mx}px,${my}px) translate(-50%,-50%)`;
+    });
+
+    (function raf() {
+      rx += (mx - rx) * 0.11;
+      ry += (my - ry) * 0.11;
+      ring.style.transform = `translate(${rx}px,${ry}px) translate(-50%,-50%)`;
+      requestAnimationFrame(raf);
+    })();
+
+    document.querySelectorAll('a, button, .agent-card, .avis-card, .av-item').forEach(el => {
+      el.addEventListener('mouseenter', () => { cur.classList.add('h'); ring.classList.add('h'); });
+      el.addEventListener('mouseleave', () => { cur.classList.remove('h'); ring.classList.remove('h'); });
+    });
+  }
+
+  // ── NAVBAR ──
+  const nav = document.getElementById('nav');
+  let lastY = 0;
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY;
+    nav.classList.toggle('scrolled', y > 60);
+    nav.classList.toggle('up', y > lastY && y > 220);
+    lastY = y;
+  }, { passive: true });
+
+  // ── MOBILE NAV ──
+  const overlay  = document.getElementById('nav-overlay');
+  const navOpen  = document.getElementById('navOpen');
+  const navClose = document.getElementById('navClose');
+  navOpen.addEventListener('click',  () => overlay.classList.add('open'));
+  navClose.addEventListener('click', () => overlay.classList.remove('open'));
+  overlay.querySelectorAll('a').forEach(a => a.addEventListener('click', () => overlay.classList.remove('open')));
+
+  // ── GSAP + LENIS (deferred until after preloader) ──
+  function boot() {
+    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
+      return setTimeout(boot, 80);
+    }
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Lenis smooth scroll
+    if (typeof Lenis !== 'undefined') {
+      const lenis = new Lenis({ duration: 1.2, easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
+      lenis.on('scroll', ScrollTrigger.update);
+      gsap.ticker.add(t => lenis.raf(t * 1000));
+      gsap.ticker.lagSmoothing(0);
+
+      document.querySelectorAll('a[href^="#"]').forEach(a => {
+        a.addEventListener('click', e => {
+          const tgt = document.querySelector(a.getAttribute('href'));
+          if (!tgt) return;
+          e.preventDefault();
+          lenis.scrollTo(tgt, { offset: -80, duration: 1.4 });
+        });
+      });
+    } else {
+      // fallback smooth scroll
+      document.querySelectorAll('a[href^="#"]').forEach(a => {
+        a.addEventListener('click', e => {
+          const tgt = document.querySelector(a.getAttribute('href'));
+          if (!tgt) return;
+          e.preventDefault();
+          tgt.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      });
+    }
+
+    // Hero entrance (fires after preloader hides)
+    const heroDelay = 2.1;
+    const tl = gsap.timeline({ delay: heroDelay });
+    tl.to('.hero-title .line span', { y: '0%', duration: 1.1, ease: 'power4.out', stagger: 0.11 })
+      .to('.eyebrow',    { opacity: 1, y: 0, duration: .85, ease: 'power3.out' }, '-=.65')
+      .to('.hero-body',  { opacity: 1, y: 0, duration: .85, ease: 'power3.out' }, '-=.7')
+      .to('.hero-btns',  { opacity: 1, y: 0, duration: .85, ease: 'power3.out' }, '-=.7')
+      .to('#scrollHint', { opacity: 1, duration: .7 }, '-=.3');
+
+    // Scroll reveals
+    gsap.utils.toArray('.rv').forEach(el => {
+      const d = parseFloat(el.style.transitionDelay) || 0;
+      gsap.fromTo(el, { opacity: 0, y: 44 }, {
+        opacity: 1, y: 0, duration: .85, ease: 'power3.out', delay: d,
+        scrollTrigger: { trigger: el, start: 'top 87%', toggleActions: 'play none none none' }
+      });
+    });
+    gsap.utils.toArray('.rl').forEach(el => {
+      gsap.fromTo(el, { opacity: 0, x: -44 }, {
+        opacity: 1, x: 0, duration: .85, ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 87%', toggleActions: 'play none none none' }
+      });
+    });
+    gsap.utils.toArray('.rr').forEach(el => {
+      gsap.fromTo(el, { opacity: 0, x: 44 }, {
+        opacity: 1, x: 0, duration: .85, ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 87%', toggleActions: 'play none none none' }
+      });
+    });
+
+    // Hero visual parallax
+    gsap.to('.hero-visual', {
+      y: -90, ease: 'none',
+      scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: true }
+    });
+
+    // Count-up on trust numbers
+    document.querySelectorAll('.trust-num[data-target]').forEach(el => {
+      const target  = parseFloat(el.dataset.target);
+      const suffix  = el.dataset.suffix || '';
+      const decimal = parseInt(el.dataset.decimal) || 0;
+      const obj     = { val: 0 };
+      ScrollTrigger.create({
+        trigger: el, start: 'top 88%',
+        onEnter: () => gsap.to(obj, {
+          val: target, duration: 1.8, ease: 'power2.out',
+          onUpdate: () => {
+            el.textContent = (decimal ? obj.val.toFixed(decimal) : Math.round(obj.val)) + suffix;
+          }
+        })
+      });
+    });
+
+    // Avantage item stagger
+    gsap.utils.toArray('.av-item').forEach((el, i) => {
+      gsap.fromTo(el, { opacity: 0, x: -28 }, {
+        opacity: 1, x: 0, duration: .7, ease: 'power3.out', delay: i * 0.07,
+        scrollTrigger: { trigger: el, start: 'top 88%', toggleActions: 'play none none none' }
+      });
+    });
+  }
+
+  // Reduced motion fallback
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.querySelectorAll('.rv,.rl,.rr,.eyebrow,.hero-body,.hero-btns,#scrollHint').forEach(el => {
+      el.style.opacity = '1'; el.style.transform = 'none';
+    });
+    document.querySelectorAll('.hero-title .line span').forEach(el => { el.style.transform = 'none'; });
+  } else {
+    setTimeout(boot, 50);
+  }
+
+  // ── CONTACT FORM ──
+  document.getElementById('contactForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    btn.innerHTML = 'Message envoyé ✓';
+    btn.style.background = '#1a7f4e';
+    btn.disabled = true;
+    setTimeout(() => {
+      btn.innerHTML = 'Envoyer la demande <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h12M7 1l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      btn.style.background = '';
+      btn.disabled = false;
+      this.reset();
+    }, 3500);
+  });
+})();
+</script>
+</body>
+</html>
