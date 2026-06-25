@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Image from 'next/image'
 import { useEffect, useRef } from 'react'
@@ -11,16 +11,16 @@ const agents = [
     imgPos:   '38% top',
     badge:    'Fondateur',
     name:     'Julien Mercier',
-    role:     'Directeur & Négociateur Senior',
+    role:     'Directeur & NÃ©gociateur Senior',
     phone:    '+33 (0)1 45 79 00 11',
     email:    'j.mercier@immotec.com',
   },
   {
     image:    '/images/estelle.jpg',
     imgPos:   '42% top',
-    badge:    '15e · 7e',
+    badge:    '15e Â· 7e',
     name:     'Estelle Chauvet',
-    role:     'Négociatrice — 15e & 7e arrondissement',
+    role:     'NÃ©gociatrice â€” 15e & 7e arrondissement',
     phone:    '+33 (0)1 45 79 00 12',
     email:    'e.chauvet@immotec.com',
   },
@@ -28,8 +28,8 @@ const agents = [
     image:    '/images/clemence.webp',
     imgPos:   '40% top',
     badge:    'Luxe',
-    name:     'Clémence Delorme',
-    role:     "Consultante — Biens d'exception",
+    name:     'ClÃ©mence Delorme',
+    role:     "Consultante â€” Biens d'exception",
     phone:    '+33 (0)1 45 79 00 13',
     email:    'c.delorme@immotec.com',
   },
@@ -39,7 +39,7 @@ export default function Equipe() {
   const sectionRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
-    let ctx: import('gsap').Context | null = null
+    let ctx: { revert\(\): void } | null = null
 
     const init = async () => {
       const { gsap }          = await import('gsap')
@@ -67,13 +67,13 @@ export default function Equipe() {
         <div className="rl">
           <div className="sec-eyebrow">
             <div className="sec-eye-line" />
-            <span className="sec-eye-text">Notre équipe</span>
+            <span className="sec-eye-text">Notre Ã©quipe</span>
           </div>
-          <h2 className="sec-title">Des experts <em>à votre service</em></h2>
+          <h2 className="sec-title">Des experts <em>Ã  votre service</em></h2>
         </div>
         <p className="sec-sub rr">
-          Chaque conseiller immotec est un spécialiste du marché parisien, formé en continu
-          et entièrement dédié à votre réussite.
+          Chaque conseiller immotec est un spÃ©cialiste du marchÃ© parisien, formÃ© en continu
+          et entiÃ¨rement dÃ©diÃ© Ã  votre rÃ©ussite.
         </p>
       </div>
 

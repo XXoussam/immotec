@@ -12,7 +12,7 @@ export default function Hero() {
   const btnsRef       = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    let ctx: import('gsap').Context | null = null
+    let ctx: { revert(): void } | null = null
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
