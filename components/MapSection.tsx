@@ -411,32 +411,21 @@ function FilterBar({ active, onChange }: { active: FilterTab; onChange: (t: Filt
 
 type MapInstance = import('maplibre-gl').Map
 
-// Enable / disable every desktop interaction handler at once.
-// dragRotate stays permanently off (set in the Map constructor).
-function enableAllHandlers(map: MapInstance) {
-  map.dragPan.enable()
-  map.scrollZoom.enable()
-  map.doubleClickZoom.enable()
-  map.boxZoom.enable()
-  map.keyboard.enable()
-}
-function disableAllHandlers(map: MapInstance) {
-  map.dragPan.disable()
-  map.scrollZoom.disable()
-  map.doubleClickZoom.disable()
-  map.boxZoom.disable()
-  map.keyboard.disable()
-}
-
 export default function MapSection() {
   const [activeId, setActiveId]   = useState<number | null>(null)
   const [activeTab, setActiveTab] = useState<FilterTab>('acheter')
+  const [ctrlHeld, setCtrlHeld]   = useState(false)
   const [showHint, setShowHint]   = useState(false)
 
-  const mapRef    = useRef<MapInstance | null>(null)
-  const cardRef   = useRef<HTMLDivElement>(null)
-  const ctrlRef   = useRef(false)
-  const hintTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const mapRef      = useRef<MapInstance | null>(null)
+  const overlayRef  = useRef<HTMLDivElement>(null)
+  const hintTimer   = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Detect touch-only devices once on mount — they have no Ctrl key
+  const isTouch = useRef(
+    typeof window !== 'undefined' &&
+    window.matchMedia('(hover: none) and (pointer: coarse)').matches
+  ).current
 
   const flashHint = useCallback(() => {
     setShowHint(true)
@@ -444,37 +433,18 @@ export default function MapSection() {
     hintTimer.current = setTimeout(() => setShowHint(false), 1600)
   }, [])
 
-  // Disable all handlers once the map ref is available.
-  // We do NOT pass dragPan/scrollZoom:{false} to the constructor — doing so
-  // corrupts the handler's internal state so enable() can never restore it.
-  // Instead we disable via the API after MapLibre has fully initialised them.
+  // Track Ctrl / Cmd globally — toggle the overlay, not MapLibre handlers
   useEffect(() => {
-    const isTouch = window.matchMedia('(hover: none) and (pointer: coarse)').matches
-    if (isTouch) return          // mobile keeps its normal touch interactions
-
-    let rafId: number
-    const waitForMap = () => {
-      const map = mapRef.current
-      if (!map) { rafId = requestAnimationFrame(waitForMap); return }
-      disableAllHandlers(map)
-    }
-    rafId = requestAnimationFrame(waitForMap)
-    return () => cancelAnimationFrame(rafId)
-  }, [])
-
-  // Ctrl / Cmd key → enable all handlers; release → disable all.
-  useEffect(() => {
+    if (isTouch) return
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key !== 'Control' && e.key !== 'Meta') return
-      ctrlRef.current = true
-      const map = mapRef.current
-      if (map) enableAllHandlers(map)
+      setCtrlHeld(true)
+      setShowHint(false)
+      if (hintTimer.current) { clearTimeout(hintTimer.current); hintTimer.current = null }
     }
     const onKeyUp = (e: KeyboardEvent) => {
       if (e.key !== 'Control' && e.key !== 'Meta') return
-      ctrlRef.current = false
-      const map = mapRef.current
-      if (map) disableAllHandlers(map)
+      setCtrlHeld(false)
     }
     window.addEventListener('keydown', onKeyDown)
     window.addEventListener('keyup', onKeyUp)
@@ -482,34 +452,26 @@ export default function MapSection() {
       window.removeEventListener('keydown', onKeyDown)
       window.removeEventListener('keyup', onKeyUp)
     }
-  }, [])
+  }, [isTouch])
 
-  // Intercept wheel + mousedown without Ctrl → prevent page-scroll capture, show hint.
-  // Skipped on touch-only devices (no Ctrl key exists there).
+  // The overlay captures wheel / mousedown when active → show hint.
+  // We don't preventDefault on wheel so the page can still scroll.
   useEffect(() => {
-    const isTouch = window.matchMedia('(hover: none) and (pointer: coarse)').matches
     if (isTouch) return
-
-    const card = cardRef.current
-    if (!card) return
-
-    const onWheel = (e: WheelEvent) => {
-      if (ctrlRef.current || e.ctrlKey || e.metaKey) return
-      e.preventDefault()
-      flashHint()
-    }
-    const onMouseDown = () => {
-      if (ctrlRef.current) return
-      flashHint()
-    }
-
-    card.addEventListener('wheel', onWheel, { passive: false })
-    card.addEventListener('mousedown', onMouseDown)
+    const overlay = overlayRef.current
+    if (!overlay) return
+    const onInteract = () => flashHint()
+    overlay.addEventListener('wheel', onInteract)
+    overlay.addEventListener('mousedown', onInteract)
     return () => {
-      card.removeEventListener('wheel', onWheel)
-      card.removeEventListener('mousedown', onMouseDown)
+      overlay.removeEventListener('wheel', onInteract)
+      overlay.removeEventListener('mousedown', onInteract)
     }
-  }, [flashHint])
+  }, [isTouch, flashHint])
+
+  // overlayActive:true  → overlay intercepts all events; map canvas gets nothing
+  // overlayActive:false → overlay is pointer-events:none; events fall through to MapLibre
+  const overlayActive = !ctrlHeld && !isTouch
 
   return (
     <section id="listings">
@@ -541,7 +503,10 @@ export default function MapSection() {
 
         {/* ── Right panel: MapLibre in a card ── */}
         <div className="listings-map">
-          <div className="listings-map-card" ref={cardRef}>
+          <div className="listings-map-card">
+            {/* Map — all handlers left at MapLibre defaults (enabled). The overlay
+                below controls whether events ever reach the canvas, so we never
+                need to call dragPan.enable/disable() or scrollZoom.enable/disable(). */}
             <Map
               ref={mapRef as React.Ref<MapInstance>}
               center={[2.2945, 48.8497] as [number, number]}
@@ -575,7 +540,16 @@ export default function MapSection() {
               <MapControls showZoom position="bottom-right" />
             </Map>
 
-            {/* Hint — pointer-events:none, never blocks drag or scroll */}
+            {/* Transparent interceptor — blocks events from reaching the map canvas
+                when Ctrl is not held. pointer-events:none when Ctrl IS held so the
+                full MapLibre interaction falls through unhindered. */}
+            <div
+              ref={overlayRef}
+              className="map-interceptor"
+              style={{ pointerEvents: overlayActive ? 'auto' : 'none' }}
+            />
+
+            {/* Hint pill — always pointer-events:none, never blocks anything */}
             <div className="map-scroll-hint" style={{ opacity: showHint ? 1 : 0 }}>
               <span className="map-ctrl-hint">
                 Maintenez <kbd>Ctrl</kbd> pour interagir avec la carte

@@ -545,6 +545,13 @@ body::after {
   .listings-map-card * { cursor: grab !important; }
 }
 
+/* Transparent interceptor — sits over the map, blocks events when pointer-events:auto */
+.map-interceptor {
+  position: absolute; inset: 0;
+  z-index: 5;
+  cursor: default !important;
+}
+
 /* Scroll hint — sits inside the card, never blocks pointer events */
 .map-scroll-hint {
   position: absolute; inset: 0;
