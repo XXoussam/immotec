@@ -233,14 +233,14 @@ body::after {
 
 /* ── LOGO BAND ── */
 .logo-band {
-  padding: 5rem 0;
+  padding: 2.5rem 0;
   background: var(--offwhite);
   border-top: 1px solid rgba(87,87,87,.1);
   overflow: hidden;
 }
 .logo-band-head {
   padding: 0 8vw;
-  margin-bottom: 3.5rem;
+  margin-bottom: 1.8rem;
 }
 .logo-band-title {
   font-family: var(--font-display), Impact, sans-serif;
@@ -260,7 +260,7 @@ body::after {
 .logo-track {
   display: flex;
   width: max-content;
-  gap: 2.5rem;
+  gap: 0;
   padding: 1rem 0;
   animation: logo-scroll 28s linear infinite;
 }
@@ -270,7 +270,7 @@ body::after {
   to   { transform: translateX(-50%); }
 }
 .logo-item {
-  width: 180px; height: 90px; flex-shrink: 0;
+  width: 220px; height: 80px; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
   filter: grayscale(1) opacity(.55);
   transition: filter .3s ease;
