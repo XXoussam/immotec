@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useRef, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import {
   Map,
@@ -409,39 +409,72 @@ function FilterBar({ active, onChange }: { active: FilterTab; onChange: (t: Filt
 
 // ── Section ────────────────────────────────────────────────────────────────────
 
+type MapInstance = import('maplibre-gl').Map
+
+// Enable / disable every desktop interaction handler at once.
+// dragRotate stays permanently off (set in the Map constructor).
+function enableAllHandlers(map: MapInstance) {
+  map.dragPan.enable()
+  map.scrollZoom.enable()
+  map.doubleClickZoom.enable()
+  map.boxZoom.enable()
+  map.keyboard.enable()
+}
+function disableAllHandlers(map: MapInstance) {
+  map.dragPan.disable()
+  map.scrollZoom.disable()
+  map.doubleClickZoom.disable()
+  map.boxZoom.disable()
+  map.keyboard.disable()
+}
+
 export default function MapSection() {
   const [activeId, setActiveId]   = useState<number | null>(null)
   const [activeTab, setActiveTab] = useState<FilterTab>('acheter')
-  const [ctrlHeld, setCtrlHeld]   = useState(false)
-  const mapRef = useRef<import('maplibre-gl').Map | null>(null)
+  const [showHint, setShowHint]   = useState(false)
 
-  // Map is initialized with drag/scroll enabled (default). Once the instance is
-  // available, disable both handlers. This lets MapLibre fully set up its
-  // internal listeners first, so enable() works correctly later.
+  const mapRef    = useRef<MapInstance | null>(null)
+  const cardRef   = useRef<HTMLDivElement>(null)
+  const ctrlRef   = useRef(false)
+  const hintTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const flashHint = useCallback(() => {
+    setShowHint(true)
+    if (hintTimer.current) clearTimeout(hintTimer.current)
+    hintTimer.current = setTimeout(() => setShowHint(false), 1600)
+  }, [])
+
+  // Disable all handlers once the map ref is available.
+  // We do NOT pass dragPan/scrollZoom:{false} to the constructor — doing so
+  // corrupts the handler's internal state so enable() can never restore it.
+  // Instead we disable via the API after MapLibre has fully initialised them.
   useEffect(() => {
+    const isTouch = window.matchMedia('(hover: none) and (pointer: coarse)').matches
+    if (isTouch) return          // mobile keeps its normal touch interactions
+
     let rafId: number
     const waitForMap = () => {
       const map = mapRef.current
       if (!map) { rafId = requestAnimationFrame(waitForMap); return }
-      map.dragPan.disable()
-      map.scrollZoom.disable()
+      disableAllHandlers(map)
     }
     rafId = requestAnimationFrame(waitForMap)
     return () => cancelAnimationFrame(rafId)
   }, [])
 
+  // Ctrl / Cmd key → enable all handlers; release → disable all.
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key !== 'Control' && e.key !== 'Meta') return
-      setCtrlHeld(true)
+      ctrlRef.current = true
       const map = mapRef.current
-      if (map) { map.dragPan.enable(); map.scrollZoom.enable() }
+      if (map) enableAllHandlers(map)
     }
     const onKeyUp = (e: KeyboardEvent) => {
       if (e.key !== 'Control' && e.key !== 'Meta') return
-      setCtrlHeld(false)
+      ctrlRef.current = false
       const map = mapRef.current
-      if (map) { map.dragPan.disable(); map.scrollZoom.disable() }
+      if (map) disableAllHandlers(map)
     }
     window.addEventListener('keydown', onKeyDown)
     window.addEventListener('keyup', onKeyUp)
@@ -451,13 +484,39 @@ export default function MapSection() {
     }
   }, [])
 
+  // Intercept wheel + mousedown without Ctrl → prevent page-scroll capture, show hint.
+  // Skipped on touch-only devices (no Ctrl key exists there).
+  useEffect(() => {
+    const isTouch = window.matchMedia('(hover: none) and (pointer: coarse)').matches
+    if (isTouch) return
+
+    const card = cardRef.current
+    if (!card) return
+
+    const onWheel = (e: WheelEvent) => {
+      if (ctrlRef.current || e.ctrlKey || e.metaKey) return
+      e.preventDefault()
+      flashHint()
+    }
+    const onMouseDown = () => {
+      if (ctrlRef.current) return
+      flashHint()
+    }
+
+    card.addEventListener('wheel', onWheel, { passive: false })
+    card.addEventListener('mousedown', onMouseDown)
+    return () => {
+      card.removeEventListener('wheel', onWheel)
+      card.removeEventListener('mousedown', onMouseDown)
+    }
+  }, [flashHint])
+
   return (
     <section id="listings">
       <div className="listings-wrap">
 
         {/* ── Left panel ── */}
         <div className="listings-panel">
-          {/* Header */}
           <div className="listings-header">
             <div className="sec-eyebrow" style={{ marginBottom: '.6rem' }}>
               <div className="sec-eye-line" />
@@ -468,7 +527,6 @@ export default function MapSection() {
             <FilterBar active={activeTab} onChange={setActiveTab} />
           </div>
 
-          {/* 2-column card grid */}
           <div className="listings-grid">
             {listings.map(l => (
               <ListingCard
@@ -483,50 +541,46 @@ export default function MapSection() {
 
         {/* ── Right panel: MapLibre in a card ── */}
         <div className="listings-map">
-          <div className="listings-map-card">
-          <Map
-            ref={mapRef as React.Ref<import('maplibre-gl').Map>}
-            center={[2.2945, 48.8497] as [number, number]}
-            zoom={14}
-            theme="light"
-            dragRotate={false}
-            touchPitch={false}
-          >
-            {listings.map(l => (
-              <MapMarker
-                key={l.id}
-                longitude={l.lng}
-                latitude={l.lat}
-                anchor="bottom"
-                onMouseEnter={() => setActiveId(l.id)}
-                onMouseLeave={() => setActiveId(null)}
-              >
-                <MarkerContent>
-                  <PriceMarker price={l.priceShort} active={activeId === l.id} />
-                </MarkerContent>
-
-                <MarkerTooltip
-                  offset={[0, -12] as unknown as number}
-                  className="map-tooltip-card"
+          <div className="listings-map-card" ref={cardRef}>
+            <Map
+              ref={mapRef as React.Ref<MapInstance>}
+              center={[2.2945, 48.8497] as [number, number]}
+              zoom={14}
+              theme="light"
+              dragRotate={false}
+              touchPitch={false}
+            >
+              {listings.map(l => (
+                <MapMarker
+                  key={l.id}
+                  longitude={l.lng}
+                  latitude={l.lat}
+                  anchor="bottom"
+                  onMouseEnter={() => setActiveId(l.id)}
+                  onMouseLeave={() => setActiveId(null)}
                 >
-                  <MapHoverCard listing={l} />
-                </MarkerTooltip>
-              </MapMarker>
-            ))}
+                  <MarkerContent>
+                    <PriceMarker price={l.priceShort} active={activeId === l.id} />
+                  </MarkerContent>
 
-            <MapControls showZoom position="bottom-right" />
-          </Map>
+                  <MarkerTooltip
+                    offset={[0, -12] as unknown as number}
+                    className="map-tooltip-card"
+                  >
+                    <MapHoverCard listing={l} />
+                  </MarkerTooltip>
+                </MapMarker>
+              ))}
 
-          {/* Blocking overlay — pointer-events:auto blocks map until Ctrl is held */}
-          <div
-            className="map-ctrl-overlay"
-            style={{ pointerEvents: ctrlHeld ? 'none' : 'auto', opacity: ctrlHeld ? 0 : 1 }}
-          >
-            <span className="map-ctrl-hint">
-              Maintenez <kbd>Ctrl</kbd> pour interagir avec la carte
-            </span>
-          </div>
+              <MapControls showZoom position="bottom-right" />
+            </Map>
 
+            {/* Hint — pointer-events:none, never blocks drag or scroll */}
+            <div className="map-scroll-hint" style={{ opacity: showHint ? 1 : 0 }}>
+              <span className="map-ctrl-hint">
+                Maintenez <kbd>Ctrl</kbd> pour interagir avec la carte
+              </span>
+            </div>
           </div>
         </div>
 

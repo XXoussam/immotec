@@ -539,20 +539,19 @@ body::after {
   position: relative;
 }
 
-/* Ctrl-gate overlay — pointer-events controlled by React (auto=blocks, none=passthrough) */
-.map-ctrl-overlay {
-  position: absolute; inset: 0;
-  z-index: 10;
-  background: rgba(0,0,0,.28);
-  display: flex; align-items: center; justify-content: center;
-  border-radius: 20px;
-  transition: opacity .25s ease;
-}
-
 /* Native cursor inside map — overrides global cursor:none */
 @media (hover: hover) and (pointer: fine) {
   .listings-map-card,
   .listings-map-card * { cursor: grab !important; }
+}
+
+/* Scroll hint — sits inside the card, never blocks pointer events */
+.map-scroll-hint {
+  position: absolute; inset: 0;
+  z-index: 10;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
+  transition: opacity .25s ease;
 }
 .map-ctrl-hint {
   display: flex; align-items: center; gap: .5rem;
