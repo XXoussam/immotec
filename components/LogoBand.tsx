@@ -3,14 +3,14 @@
 import Image from 'next/image'
 
 const LOGOS = [
-  { src: 'https://agence-immotec.com/wp-content/uploads/2022/01/FNAIM-2048x2048.png.webp',    alt: 'FNAIM' },
-  { src: 'https://agence-immotec.com/wp-content/uploads/2022/01/SELOGER-2048x2048.png.webp',  alt: 'SeLoger' },
-  { src: 'https://agence-immotec.com/wp-content/uploads/2022/01/LOGICIMMO-2048x2048.png.webp',alt: 'Logic Immo' },
-  { src: 'https://agence-immotec.com/wp-content/uploads/2022/05/BD_ok.jpg.webp',              alt: 'BonCoin' },
-  { src: 'https://agence-immotec.com/wp-content/uploads/2022/05/Lemonde_logo.jpg.webp',       alt: 'Le Monde' },
-  { src: 'https://agence-immotec.com/wp-content/uploads/2022/05/figaro.jpg.webp',             alt: 'Le Figaro' },
-  { src: 'https://agence-immotec.com/wp-content/uploads/2022/05/Matterport_Site.jpg.webp',    alt: 'Matterport' },
-  { src: 'https://agence-immotec.com/wp-content/uploads/2022/05/lux_resi.jpg.webp',           alt: 'Lux Résidentiel' },
+  { src: '/images/logos/fnaim.webp',      alt: 'FNAIM' },
+  { src: '/images/logos/seloger.webp',    alt: 'SeLoger' },
+  { src: '/images/logos/logicimmo.webp',  alt: 'Logic Immo' },
+  { src: '/images/logos/boncoin.webp',    alt: 'BonCoin' },
+  { src: '/images/logos/lemonde.webp',    alt: 'Le Monde' },
+  { src: '/images/logos/figaro.webp',     alt: 'Le Figaro' },
+  { src: '/images/logos/matterport.webp', alt: 'Matterport' },
+  { src: '/images/logos/lux-resi.webp',   alt: 'Lux Résidentiel' },
 ]
 
 export default function LogoBand() {
@@ -44,7 +44,6 @@ export default function LogoBand() {
                 width={110}
                 height={56}
                 style={{ objectFit: 'contain', width: '100%', height: '100%' }}
-                unoptimized
               />
             </div>
           ))}
