@@ -270,13 +270,9 @@ body::after {
   to   { transform: translateX(-50%); }
 }
 .logo-item {
-  width: 130px; height: 68px; flex-shrink: 0;
+  width: 180px; height: 90px; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
-  background: #fff;
-  border-radius: 8px;
-  padding: .75rem 1.1rem;
-  box-shadow: 0 1px 6px rgba(0,0,0,.06);
-  filter: grayscale(1) opacity(.65);
+  filter: grayscale(1) opacity(.55);
   transition: filter .3s ease;
 }
 .logo-item:hover { filter: grayscale(0) opacity(1); }
