@@ -1,6 +1,7 @@
 import Navbar from '@/components/Navbar'
 import Hero from '@/components/Hero'
 import TrustBar from '@/components/TrustBar'
+import LogoBand from '@/components/LogoBand'
 import Equipe from '@/components/Equipe'
 import AvisClients from '@/components/AvisClients'
 import Avantages from '@/components/Avantages'
@@ -15,6 +16,7 @@ export default function Home() {
       <Navbar />
       <Hero />
       <TrustBar />
+      <LogoBand />
       <Equipe />
       <AvisClients />
       <Avantages />
