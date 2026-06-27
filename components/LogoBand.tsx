@@ -3,14 +3,14 @@
 import Image from 'next/image'
 
 const LOGOS = [
-  { src: '/images/logos/fnaim.webp',      alt: 'FNAIM' },
-  { src: '/images/logos/seloger.webp',    alt: 'SeLoger' },
-  { src: '/images/logos/logicimmo.webp',  alt: 'Logic Immo' },
-  { src: '/images/logos/boncoin.webp',    alt: 'BonCoin' },
-  { src: '/images/logos/lemonde.webp',    alt: 'Le Monde' },
-  { src: '/images/logos/figaro.webp',     alt: 'Le Figaro' },
-  { src: '/images/logos/matterport.webp', alt: 'Matterport' },
-  { src: '/images/logos/lux-resi.webp',   alt: 'Lux Résidentiel' },
+  { src: '/images/logos/fnaim.png',      alt: 'FNAIM' },
+  { src: '/images/logos/seloger.png',    alt: 'SeLoger' },
+  { src: '/images/logos/logicimmo.png',  alt: 'Logic Immo' },
+  { src: '/images/logos/boncoin.png',    alt: 'BonCoin' },
+  { src: '/images/logos/lemonde.png',    alt: 'Le Monde' },
+  { src: '/images/logos/figaro.png',     alt: 'Le Figaro' },
+  { src: '/images/logos/matterport.png', alt: 'Matterport' },
+  { src: '/images/logos/lux-resi.png',   alt: 'Lux Résidentiel' },
 ]
 
 export default function LogoBand() {
